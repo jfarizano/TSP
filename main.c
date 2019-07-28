@@ -5,12 +5,12 @@
 
 typedef struct {
   int** costos;
-  size_t cantCiudades;
+  int cantCiudades;
 } _MatrizAdyacencia;
 
 typedef _MatrizAdyacencia* MatrizAdyacencia;
 
-MatrizAdyacencia matriz_ady_crear(size_t cantCiudades) {
+MatrizAdyacencia matriz_ady_crear(int cantCiudades) {
   MatrizAdyacencia matrizAdy = malloc(sizeof(_MatrizAdyacencia));
   matrizAdy->cantCiudades = cantCiudades;
   matrizAdy->costos = malloc(sizeof(int*) * cantCiudades);
@@ -26,15 +26,23 @@ MatrizAdyacencia matriz_ady_crear(size_t cantCiudades) {
   return matrizAdy;
 }
 
-void matriz_ady_modificar_costo(MatrizAdyacencia matrizAdy, size_t i, size_t j,
+void matriz_ady_destruir(MatrizAdyacencia matrizAdy) {
+  for (int i = 0; i < matrizAdy->cantCiudades; i++) {
+    free(matrizAdy->costos[i]);
+  }
+  free(matrizAdy->costos);
+  free(matrizAdy);
+}
+
+void matriz_ady_modificar_costo(MatrizAdyacencia matrizAdy, int i, int j,
                                 int costo) {
   matrizAdy->costos[i][j] = costo;
   matrizAdy->costos[j][i] = costo;
 }
 
 void matriz_ady_imprimir(MatrizAdyacencia matrizAdy) {
-  for (size_t i = 0; i < matrizAdy->cantCiudades; i++) {
-    for (size_t j = 0; j < matrizAdy->cantCiudades; j++) {
+  for (int i = 0; i < matrizAdy->cantCiudades; i++) {
+    for (int j = 0; j < matrizAdy->cantCiudades; j++) {
       printf("%d ", matrizAdy->costos[i][j]);
     }
     printf("\n");
@@ -42,7 +50,7 @@ void matriz_ady_imprimir(MatrizAdyacencia matrizAdy) {
 }
 
 MatrizAdyacencia leer_ciudades(FILE* archivoEntrada, char** ciudades) {
-  size_t cantCiudades = 0;
+  int cantCiudades = 0;
   char charBuff, strBuff[80];
 
   for (int i = 0, seguir = 1; seguir;) {
@@ -71,8 +79,15 @@ MatrizAdyacencia leer_ciudades(FILE* archivoEntrada, char** ciudades) {
   return matriz_ady_crear(cantCiudades);
 }
 
-size_t buscar_ciudad(char** ciudades, MatrizAdyacencia matrizAdy, char* ciudad) {
-  for (size_t i = 0; i < matrizAdy->cantCiudades; i++) {
+void destruir_ciudades(char** ciudades, int cantCiudades) {
+  for (int i = 0; i < cantCiudades; i++) {
+    free(ciudades[i]);
+  }
+  free(ciudades);
+}
+
+int buscar_ciudad(char** ciudades, MatrizAdyacencia matrizAdy, char* ciudad) {
+  for (int i = 0; i < matrizAdy->cantCiudades; i++) {
     if (strcmp(ciudades[i], ciudad) == 0) {
       return i;
     }
@@ -85,7 +100,7 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
                   char** ciudades) {
   char charBuff, strBuff[30];
   int costo; 
-  size_t ciudad1, ciudad2;
+  int ciudad1, ciudad2;
 
   for (int i = 0, nCiudad = 1; (charBuff = getc(archivoEntrada)) != EOF;) {
     if (charBuff == '\n') {
@@ -101,7 +116,7 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
           assert(ciudad1 != -1);
           nCiudad = 2;
           i = 0;
-          charBuff = getc(archivoEntrada);
+          // charBuff = getc(archivoEntrada);
           break;
         case 2:
           strBuff[i] = '\0';
@@ -109,7 +124,7 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
           assert(ciudad2 != -1);
           nCiudad = 1;
           i = 0;
-          charBuff = getc(archivoEntrada);
+          // charBuff = getc(archivoEntrada);
           break;
       }
     } else {
@@ -141,12 +156,56 @@ MatrizAdyacencia cargar_datos(char* nombreArchivoEntrada, char** ciudades) {
   return matrizAdy;
 }
 
+int no_visitada(int* recorrido, int ciudadActual, int cantVisitadas) {
+  for (int i = 0; i < cantVisitadas; i++) {
+    if (recorrido[i] == ciudadActual) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+void TSP(MatrizAdyacencia matrizAdy, int* costoFinal, int costoActual, 
+          int ciudadActual, int cantVisitadas) {
+  if (*costoFinal == -1 || costoActual < *costoFinal) {
+    if (ciudadActual == 0 && cantVisitadas == matrizAdy->cantCiudades) {
+      *costoFinal = costoActual;
+      // printf("%d %d %d\n", costoActual, ciudadActual, cantVisitadas);
+    } else if (matrizAdy->costos[ciudadActual][ciudadActual] == 0) {
+      matrizAdy->costos[ciudadActual][ciudadActual] = -1;
+
+      for (int i = 0, nuevoCosto; i < matrizAdy->cantCiudades; i++) {
+        if (matrizAdy->costos[ciudadActual][i] != 0 &&
+            (matrizAdy->costos[i][i] != -1 || i == 0)) {
+          nuevoCosto = costoActual + matrizAdy->costos[ciudadActual][i];
+          TSP(matrizAdy, costoFinal, nuevoCosto, i, cantVisitadas + 1);
+        }
+      }
+
+      matrizAdy->costos[ciudadActual][ciudadActual] = 0;
+
+    }
+  }
+}
+
 int main(int argc, char **argv ) {
   if (argc == 3) {
-    char** ciudades = malloc(sizeof(char*) * 15);
-    MatrizAdyacencia matrizAdy = cargar_datos(argv[1], ciudades); 
-    
+    char** ciudades = malloc(sizeof(char*) * 25);
+    MatrizAdyacencia matrizAdy = cargar_datos(argv[1], ciudades);
+
+    int costoFinal = -1;
+    // matriz_ady_imprimir(matrizAdy);
+
+    TSP(matrizAdy, &costoFinal, 0, 0, 0);
+    printf("%d", costoFinal);
+    printf("\n");
+
+    destruir_ciudades(ciudades, matrizAdy->cantCiudades);
+    matriz_ady_destruir(matrizAdy);
+
     return 0;
+
   } else {
     printf("Cantidad de argumentos inválida.\n");
     return -1;

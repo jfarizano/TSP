@@ -1,9 +1,0 @@
-Ciudades
-
-Costos
-Rosario, Wheelwright, 175
-Buenos Aires, Wheelwright, 301
-Rosario, Buenos Aires, 299
-Buenos Aires, San Nicolas, 308
-San Nicolas, Rosario, 69
-San Nicolas, Wheelwright, 150
