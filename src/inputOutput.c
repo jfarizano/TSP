@@ -31,8 +31,8 @@ MatrizAdyacencia leer_ciudades(FILE* archivoEntrada, char** ciudades) {
   return matriz_ady_crear(cantCiudades);
 }
 
-int buscar_ciudad(char** ciudades, MatrizAdyacencia matrizAdy, char* ciudad) {
-  for (int i = 0; i < matrizAdy->cantCiudades; i++) {
+int buscar_ciudad(char** ciudades, int cantCiudades, char* ciudad) {
+  for (int i = 0; i < cantCiudades; i++) {
     if (strcmp(ciudades[i], ciudad) == 0) {
       return i;
     }
@@ -45,7 +45,7 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
                   char** ciudades) {
   char charBuff, strBuff[30];
   int costo; 
-  int ciudad1, ciudad2;
+  int ciudad1 = -1, ciudad2 = -1;
 
   for (int i = 0, nCiudad = 1; (charBuff = getc(archivoEntrada)) != EOF;) {
     if (charBuff == '\n') {
@@ -60,14 +60,14 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
       switch (nCiudad) {
         case 1:
           strBuff[i] = '\0';
-          ciudad1 = buscar_ciudad(ciudades, matrizAdy, strBuff);
+          ciudad1 = buscar_ciudad(ciudades, matrizAdy->cantCiudades, strBuff);
           assert(ciudad1 != -1);
           nCiudad = 2;
           i = 0;
           break;
         case 2:
           strBuff[i] = '\0';
-          ciudad2 = buscar_ciudad(ciudades, matrizAdy, strBuff);
+          ciudad2 = buscar_ciudad(ciudades, matrizAdy->cantCiudades, strBuff);
           assert(ciudad2 != -1);
           nCiudad = 1;
           i = 0;
@@ -103,10 +103,12 @@ MatrizAdyacencia cargar_datos(char* nombreArchivoEntrada, char** ciudades) {
 }
 
 void salida_archivo(char* nombreArchivoSalida, MatrizAdyacencia matrizAdy, 
-                    char** ciudades, int* recorrido) {
+                    char** ciudades, int* recorrido, int costoFinal) {
 
   FILE* archivoSalida = fopen(nombreArchivoSalida, "w");
 
+  fprintf(archivoSalida, "Costo final del recorrido: %d\n", costoFinal);
+  fprintf(archivoSalida, "Recorrido\n");
   for (int i = 0; i < matrizAdy->cantCiudades; i++) {
     fprintf(archivoSalida, "%s,%s,", ciudades[recorrido[i]], 
             ciudades[recorrido[i + 1]]);

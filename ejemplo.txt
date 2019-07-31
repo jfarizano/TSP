@@ -1,0 +1,11 @@
+Ciudades
+a, b, c, d, e
+Costos
+a,b,6
+a,c,9
+a,d,21
+b,c,45
+b,e,2
+c,d,30
+c,e,7
+d,e,15

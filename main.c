@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
     char** ciudades = malloc(sizeof(char*) * MAXCIUDADES);
     MatrizAdyacencia matrizAdy = cargar_datos(argv[1], ciudades);
     int recorrido[matrizAdy->cantCiudades + 1];
-    // La última ciudad del recorrido siempre será la inicial
     recorrido[matrizAdy->cantCiudades] = 0;
     int costoFinal = -1;
 
-    if (TSP(matrizAdy, &costoFinal, 0, 0, 0, recorrido)) {
-      printf("%d\n", costoFinal);
-      salida_archivo(argv[2], matrizAdy, ciudades, recorrido);
+    int solucionEncontrada = TSP(matrizAdy, &costoFinal, 0, 0, 0, recorrido);
+    
+    if (solucionEncontrada) {
+      salida_archivo(argv[2], matrizAdy, ciudades, recorrido, costoFinal);
     } else {
       printf("No se encontró una solución.\n");
     }
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     destruir_ciudades(ciudades, matrizAdy->cantCiudades);
     matriz_ady_destruir(matrizAdy);
 
-    return 0;
+    return solucionEncontrada;
 
   } else {
     printf("Cantidad de argumentos inválida.\n");
