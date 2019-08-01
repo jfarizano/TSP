@@ -2,6 +2,15 @@
 #include "src/matrizAdy.h"
 #include "src/inputOutput.h"
 
+/*
+  TSP: MatrizAdyacencia int* int int int int* -> int
+  Resuelve recursivamente el problema TSP (el algoritmo se encuentra explicado
+  en el archivo README.md).
+  Devuelve 1 si a partir de el llamado recursivo actual se encontró un primer
+  camino válido si no se encontró uno ya o si se encontró un nuevo camino válido
+  con costo menor al anterior.
+  Devuelve 0 en caso contrario.
+*/
 int TSP(MatrizAdyacencia matrizAdy, int* costoFinal, int costoActual, 
           int ciudadActual, int cantVisitadas, int* recorrido) {
 
@@ -15,6 +24,8 @@ int TSP(MatrizAdyacencia matrizAdy, int* costoFinal, int costoActual,
 
     } else if (matrizAdy->costos[ciudadActual][ciudadActual] != -1) {
 
+      // Se marca la ciudad como visitada usando la diagonal de la matriz de 
+      // adyacencia ya que no se utiliza con otro motivo.
       matriz_ady_modificar_costo(matrizAdy, ciudadActual, ciudadActual, -1);
 
       for (int i = 0, nuevoCosto; i < matrizAdy->cantCiudades; i++) {
@@ -28,6 +39,7 @@ int TSP(MatrizAdyacencia matrizAdy, int* costoFinal, int costoActual,
         }
       }
 
+      // Se desmarca la ciudad como visitada.
       matriz_ady_modificar_costo(matrizAdy, ciudadActual, ciudadActual, 0);
 
       if (flag) {
@@ -42,6 +54,7 @@ int TSP(MatrizAdyacencia matrizAdy, int* costoFinal, int costoActual,
 
 int main(int argc, char **argv) {
   if (argc == 3) {
+    
     char** ciudades = malloc(sizeof(char*) * MAXCIUDADES);
     MatrizAdyacencia matrizAdy = cargar_datos(argv[1], ciudades);
     int recorrido[matrizAdy->cantCiudades + 1];

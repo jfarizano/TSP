@@ -24,7 +24,7 @@
 MatrizAdyacencia leer_ciudades(FILE* archivoEntrada, char** ciudades);
 
 /*
-  int buscar_ciudad: char** MatrizAdyacencia char -> int
+  int buscar_ciudad: char** int char -> int
   Dado un array con los nombres de las ciudades, la cantidad de ciudades
   y el nombre de una ciudad.
   Se busca y se devuelve la posición de la ciudad en el array, 

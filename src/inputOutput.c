@@ -15,13 +15,16 @@ MatrizAdyacencia leer_ciudades(FILE* archivoEntrada, char** ciudades) {
         assert(cantCiudades <= MAXCIUDADES);
       }
       seguir = 0;
+    } else if (charBuff == '\r') {
+      i--; // En caso de que el archivo de entrada haya sido creado en Windows.
     } else if (charBuff == ',') {
       strBuff[i] = '\0';
       ciudades[cantCiudades] = malloc(sizeof(char) * (strlen(strBuff) + 1));
       strcpy(ciudades[cantCiudades], strBuff);
       cantCiudades++;
+      assert(cantCiudades <= MAXCIUDADES);
       i = 0;
-      charBuff = getc(archivoEntrada);
+      charBuff = getc(archivoEntrada); // Saltea el espacio después de la coma.
     } else {
       strBuff[i] = charBuff;
       i++;
@@ -55,7 +58,7 @@ void leer_costos(FILE* archivoEntrada, MatrizAdyacencia matrizAdy,
       matriz_ady_modificar_costo(matrizAdy, ciudad1, ciudad2, costo);
       i = 0;
     } else if (charBuff == '\r') {
-      i--; // En caso de que el archivo de entrada haya sido creado en Windows
+      i--; // En caso de que el archivo de entrada haya sido creado en Windows.
     } else if (charBuff == ',') {
       switch (nCiudad) {
         case 1:
@@ -99,6 +102,7 @@ MatrizAdyacencia cargar_datos(char* nombreArchivoEntrada, char** ciudades) {
   leer_costos(archivoEntrada, matrizAdy, ciudades);
 
   fclose(archivoEntrada);
+  
   return matrizAdy;
 }
 

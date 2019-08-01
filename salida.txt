@@ -1,7 +1,0 @@
-Costo final del recorrido: 62
-Recorrido
-a,b,6
-b,e,2
-e,d,15
-d,c,30
-c,a,9

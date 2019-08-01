@@ -19,8 +19,9 @@ typedef _MatrizAdyacencia* MatrizAdyacencia;
 
 /*
   matriz_ady_crear: int -> MatridAdyacencia
-  Dado N, crea y devuelve una estructura que contendrá una matriz de tamaño N*N
-  y el valor N.
+  Dada la cantidad de ciudades (cantCiudades), crea y devuelve una estructura 
+  que contendrá una matriz de tamaño cantCiudades*cantCiudades 
+  y el valor cantCiudades.
 */
 MatrizAdyacencia matriz_ady_crear(int cantCiudades);
 
